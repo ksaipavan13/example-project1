@@ -15,10 +15,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-          
+        with:
+          token: ${{ secrets.PAT }}
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Get package version
         id: get_version
-        run: echo "version=$(node -p -e \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+        run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
 
       - name: Check if release exists
         id: check_release
@@ -67,10 +72,13 @@ jobs:
 
       - name: Deploy application
         env:
-          TAG: ${{ github.ref }}
+          TAG: ${{ steps.get_version.outputs.version }}
         run: |
           echo "Deploying version $TAG"
-          echo "Contents of index.html:"
-          cat index.html
+          if [ -f index.html ]; then
+            echo "Contents of index.html:"
+            cat index.html
+          else
+            echo "index.html does not exist. Skipping file output."
+          fi
           echo "Deployment of version $TAG completed successfully."
-
