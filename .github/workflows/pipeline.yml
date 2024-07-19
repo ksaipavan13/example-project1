@@ -23,12 +23,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
           token: ${{ secrets.PAT }}
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
 
       - name: Get package version
         id: get_version
-        run: echo "version=$(node -p -e \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+        run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
 
       - name: Check if tag exists
         id: check_tag
@@ -110,4 +112,3 @@ jobs:
           echo "Contents of index.html:"
           cat index.html
           echo "Deployment of version $TAG completed successfully."
-
