@@ -18,10 +18,13 @@ jobs:
         with:
           token: ${{ secrets.PAT }}
 
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Get package version
         id: get_version
         run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
-      
+
       - name: Check if tag exists
         id: check_tag
         run: |
@@ -46,4 +49,3 @@ jobs:
       - name: Tag already exists
         if: steps.check_tag.outputs.tag_exists == 'true'
         run: echo "Tag ${{ steps.get_version.outputs.version }} already exists. Skipping tag creation."
-
